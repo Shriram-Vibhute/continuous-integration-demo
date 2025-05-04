@@ -35,8 +35,8 @@ jobs:
         run: flake8 app.py
   
   testing:
-    needs: linting
-    runs-on: ububtu-latest
+    # needs: linting
+    runs-on: ubuntu-latest
     steps:
       - name: code checkout
         uses: actions/checkout@v3
