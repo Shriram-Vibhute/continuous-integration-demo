@@ -33,3 +33,19 @@ jobs:
 
       - name: Run Flake8 linter
         run: flake8 app.py
+  
+  testing:
+    needs: linting
+    runs-on: ububtu-latest
+    steps:
+      - name: code checkout
+        uses: actions/checkout@v3
+      
+      - name: setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      
+      - name: run unit tests
+        run: |
+          python -m unittest discover
