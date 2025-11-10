@@ -1,5 +1,7 @@
-name: CI
+# The name field defines the name of the workflow. This name will be displayed in the GitHub Actions UI, making it easier to identify and manage.
+name: Continuous Integration
 
+# The on field defines the events that trigger the workflow. In this case, the workflow will run on `push`, `pull_request` or `schedule` events to the master branch.
 on:
   push:
     branches:
@@ -8,33 +10,43 @@ on:
     branches:
       - master
 
+# The jobs field defines the set of jobs that will be run as part of the workflow. In this case, the workflow will run a linting job and a testing job. Jobs can run in parallel of sequentially (specified with the `needs` field).
 jobs:
-  linting:
-    runs-on: ${{ matrix.os}}
+  # This is a type of job
+  linting: 
+    name: Linting # You can specify the name to the job.
+    runs-on: ${{ matrix.os}} # This specifies the operating system that the job will run on. In this case, the job will run on Ubuntu-latest (recommended), Windows-latest, and macOS-latest.
 
-    strategy:
+    strategy: # This specifies the strategy that will be used to run the job. In this case, the job will run on multiple operating systems (behavior on multiple os) and Python versions.
+      fail-fast: false # This specifies that the job should not fail fast. In other words, if one of the matrix combinations fails, the job will continue to run the other combinations.
+      max-parallel: 3 # This specifies the maximum number of parallel jobs that will run at the same time. In this case, it will run 3 jobs at a time.
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         version: [3.9, 3.10]
 
-    steps:
-      - name: Checkout code
+    steps: # Defines the steps that the job will run. Each step can run a script, shell command or a pre-defined action.
+      - name: Checkout code # This step checks out (downloades the code from repo to the runner) the code from the repository.
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python # This step sets up the Python environment on the runner. In this case, it will install Python 3.8.
         uses: actions/setup-python@v2
-        with:
+        with: # To specify python version
           python-version: '3.8'
 
       - name: Install dependencies
-        run: |
+        run: | # | used to run multiple commands in a single step.
           python -m pip install --upgrade pip
-          pip install flake8
+          pip install flake8 
 
       - name: Run Flake8 linter
-        run: flake8 app.py
-  
+        run: flake8 app.py # Checks the linting errors in the app.py file.
+
+# `run` - used to run shell commands or scripts in the job.
+# `uses` - used to run pre-defined actions in the job.
+
+  # The second job is a testing job that depends on the linting job.
   testing:
+    name: Testing
     needs: linting
     runs-on: ubuntu-latest
     steps:
@@ -47,5 +59,5 @@ jobs:
           python-version: '3.8'
       
       - name: run unit tests
-        run: |
+        run: | # This is the command to run the unit tests in the test_app.py file.
           python -m unittest discover
